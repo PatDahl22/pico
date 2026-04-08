@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.12)
 
-set(PICO_BOARD pico2 CACHE STRING "Target board")
+set(PICO_BOARD pico2_w CACHE STRING "Target board")
 
 include($ENV{PICO_SDK_PATH}/external/pico_sdk_import.cmake)
 
@@ -16,6 +16,8 @@ add_executable(pico_app
 
 target_link_libraries(pico_app
     pico_stdlib
+    pico_cyw43_arch_none
 )
 
 pico_add_extra_outputs(pico_app)
+
