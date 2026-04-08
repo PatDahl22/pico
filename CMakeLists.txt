@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.12)
 
-set(PICO_BOARD pico_w CACHE STRING "Target board")
+set(PICO_BOARD pico2 CACHE STRING "Target board")
 
 include($ENV{PICO_SDK_PATH}/external/pico_sdk_import.cmake)
 
