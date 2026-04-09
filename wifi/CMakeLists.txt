@@ -19,9 +19,9 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
 target_link_libraries(${PROJECT_NAME}
     pico_stdlib
     pico_cyw43_arch_lwip_poll
-    hardware_irq
 )
 
 pico_add_extra_outputs(${PROJECT_NAME})
 
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.uf2 DESTINATION /firmware)
+
