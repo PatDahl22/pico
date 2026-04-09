@@ -1,15 +1,9 @@
 #include "pico/stdlib.h"
 #include "pico/cyw43_arch.h"
-#include "lwip/tcp.h"
-#include "lwip/dns.h"
 #include <stdio.h>
-#include <string.h>
 #include <stdbool.h>
 
 #define BUTTON_PIN 15
-#define SERVER_HOST "192.168.1.135"
-#define SERVER_PORT 8080
-#define SERVER_PATH "/endpoint"
 
 static volatile bool button_pressed = false;
 
@@ -24,43 +18,6 @@ void get_mac_string(char *buf) {
     cyw43_wifi_get_mac(&cyw43_state, CYW43_ITF_STA, mac);
     snprintf(buf, 18, "%02X:%02X:%02X:%02X:%02X:%02X",
              mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
-}
-
-void send_http_post(const char *mac) {
-    char body[64];
-    snprintf(body, sizeof(body), "{\"id\":\"%s\"}", mac);
-
-    char request[256];
-    snprintf(request, sizeof(request),
-             "POST %s HTTP/1.1\r\n"
-             "Host: %s\r\n"
-             "Content-Type: application/json\r\n"
-             "Content-Length: %d\r\n"
-             "Connection: close\r\n"
-             "\r\n"
-             "%s",
-             SERVER_PATH, SERVER_HOST, (int)strlen(body), body);
-
-    struct tcp_pcb *pcb = tcp_new();
-    if (!pcb) {
-        printf("tcp_new failed\r\n");
-        fflush(stdout);
-        return;
-    }
-
-    ip_addr_t server_ip;
-    err_t dns_result = dns_gethostbyname(SERVER_HOST, &server_ip, NULL, NULL);
-
-    if (dns_result == ERR_OK) {
-        printf("Sending POST...\r\n");
-        fflush(stdout);
-        tcp_connect(pcb, &server_ip, SERVER_PORT, NULL);
-        tcp_write(pcb, request, strlen(request), TCP_WRITE_FLAG_COPY);
-        tcp_output(pcb);
-    } else {
-        printf("DNS lookup failed: %d\r\n", dns_result);
-        fflush(stdout);
-    }
 }
 
 int main() {
@@ -101,13 +58,14 @@ int main() {
     get_mac_string(mac);
 
     printf("MAC: %s\r\n", mac);
-    printf("Ready - press button to send POST\r\n");
+    printf("Ready - press button\r\n");
     fflush(stdout);
 
     while (true) {
         if (button_pressed) {
             button_pressed = false;
-            send_http_post(mac);
+            printf("Button pressed while WiFi connected\r\n");
+            fflush(stdout);
         }
         cyw43_arch_poll();
         sleep_ms(10);
