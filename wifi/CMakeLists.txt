@@ -11,6 +11,10 @@ add_executable(${PROJECT_NAME}
 pico_enable_stdio_usb(${PROJECT_NAME} 1)
 pico_enable_stdio_uart(${PROJECT_NAME} 0)
 
+target_include_directories(${PROJECT_NAME} PRIVATE
+    include
+)
+
 target_compile_definitions(${PROJECT_NAME} PRIVATE
     WIFI_SSID=\"$ENV{WIFI_SSID}\"
     WIFI_PASSWORD=\"$ENV{WIFI_PASSWORD}\"
