@@ -1,0 +1,108 @@
+#include "pico/stdlib.h"
+#include "pico/util/queue.h"
+#include <stdio.h>
+#include <stdint.h>
+#include <stdbool.h>
+
+#define BTN_A_PIN 14
+#define BTN_B_PIN 15
+#define BTN_RESET_PIN 16
+
+#define DELAY_MS 250
+#define STARTUP_DELAY_MS 3000
+
+#define NUMBER_OF_Q_ELEMENTS 16
+
+volatile uint32_t counter = 0;
+queue_t q;
+
+typedef struct {
+    uint gpio;
+    uint32_t events;
+} event_t;
+
+void slow_process(uint gpio) {
+    printf("Start %lu from GPIO %u\r\n", (unsigned long)counter++, gpio);
+
+    printf("Step A\r\n"); sleep_ms(DELAY_MS);
+    printf("Step B\r\n"); sleep_ms(DELAY_MS);
+    printf("Step C\r\n"); sleep_ms(DELAY_MS);
+    printf("Step D\r\n"); sleep_ms(DELAY_MS);
+
+    printf("Done\r\n");
+    fflush(stdout);
+}
+
+void gpio_isr(uint gpio, uint32_t events) {
+    if (gpio == BTN_RESET_PIN) {
+        printf("Resetting counter\r\n");
+        counter = 0;
+        printf("Counter reset\r\n");
+        fflush(stdout);
+        return;
+    }
+
+    event_t e = {
+        .gpio = gpio,
+        .events = events
+    };
+
+    queue_try_add(&q, &e);
+}
+
+void init_btn(int pin) {
+    printf("Initializing GPIO %d\r\n", pin);
+    gpio_init(pin);
+    gpio_set_dir(pin, GPIO_IN);
+    gpio_pull_up(pin);
+}
+
+void init_all(void) {
+    printf("Initializing system\r\n");
+
+    queue_init(&q, sizeof(event_t), NUMBER_OF_Q_ELEMENTS);
+
+    init_btn(BTN_A_PIN);
+    init_btn(BTN_B_PIN);
+    init_btn(BTN_RESET_PIN);
+
+    gpio_set_irq_enabled_with_callback(BTN_A_PIN, GPIO_IRQ_EDGE_FALL, true, &gpio_isr);
+    gpio_set_irq_enabled_with_callback(BTN_B_PIN, GPIO_IRQ_EDGE_FALL, true, &gpio_isr);
+    gpio_set_irq_enabled_with_callback(BTN_RESET_PIN, GPIO_IRQ_EDGE_FALL, true, &gpio_isr);
+
+    printf("Ready:\r\n");
+    printf(" - BTN A on GPIO 14\r\n");
+    printf(" - BTN B on GPIO 15\r\n");
+    printf(" - RESET on GPIO 16\r\n");
+    fflush(stdout);
+}
+
+int main() {
+    stdio_init_all();
+    sleep_ms(STARTUP_DELAY_MS);
+
+    init_all();
+
+    while (true) {
+        event_t e;
+
+        if (queue_try_remove(&q, &e)) {
+            switch (e.gpio) {
+                case BTN_A_PIN:
+                    printf("GPIO %u handled\r\n", e.gpio);
+                    slow_process(e.gpio);
+                    break;
+
+                case BTN_B_PIN:
+                    printf("GPIO %u handled\r\n", e.gpio);
+                    slow_process(e.gpio);
+                    break;
+
+                default:
+                    break;
+            }
+        }
+
+        tight_loop_contents();
+    }
+}
