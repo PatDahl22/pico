@@ -14,7 +14,6 @@ pico_enable_stdio_uart(${PROJECT_NAME} 0)
 
 target_link_libraries(${PROJECT_NAME}
     pico_stdlib
-    pico_cyw43_arch_none
 )
 
 pico_add_extra_outputs(${PROJECT_NAME})
