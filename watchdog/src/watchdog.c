@@ -44,17 +44,19 @@ int main() {
 
     while (true) {
         if (stop_feeding) {
-            printf("No dog food!\r\n");
-            fflush(stdout);
+    	   printf("No dog food!\r\n");
+    	   fflush(stdout);
+    	   sleep_ms(1000);
 
-            while (true) {
-                sleep_ms(DELAY_MS);
-            }
+    	   while (true) {
+              tight_loop_contents();
+           }
         }
 
         printf("Feeding dog\r\n");
-        fflush(stdout);
+
         watchdog_update();
-        sleep_ms(DELAY_MS);
+
+        sleep_ms(1000);
     }
 }
