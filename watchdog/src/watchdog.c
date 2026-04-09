@@ -5,8 +5,8 @@
 
 #define BUTTON_PIN 15
 #define DELAY_MS 250
-#define STARTUP_DELAY_MS 5000
-#define WATCHDOG_TIMEOUT_MS 2000
+#define STARTUP_DELAY_MS 6000
+#define WATCHDOG_TIMEOUT_MS 5000
 
 volatile bool stop_feeding = false;
 
@@ -16,7 +16,15 @@ void button_callback(uint gpio, uint32_t events) {
     }
 }
 
-void init_watchdog_demo(void) {
+static void wait_for_usb_output(void) {
+    sleep_ms(2000);
+}
+
+int main() {
+    stdio_init_all();
+
+    wait_for_usb_output();
+
     if (watchdog_caused_reboot()) {
         printf("\r\nRecovered from watchdog reset\r\n");
     } else {
@@ -25,21 +33,14 @@ void init_watchdog_demo(void) {
     printf("Press button to stop feeding watchdog\r\n");
     fflush(stdout);
 
-    watchdog_enable(WATCHDOG_TIMEOUT_MS, 1);
+    sleep_ms(STARTUP_DELAY_MS);
 
     gpio_init(BUTTON_PIN);
     gpio_set_dir(BUTTON_PIN, GPIO_IN);
     gpio_pull_up(BUTTON_PIN);
-
     gpio_set_irq_enabled_with_callback(BUTTON_PIN, GPIO_IRQ_EDGE_FALL, true, &button_callback);
-}
 
-int main() {
-    stdio_init_all();
-
-    sleep_ms(STARTUP_DELAY_MS);
-
-    init_watchdog_demo();
+    watchdog_enable(WATCHDOG_TIMEOUT_MS, 1);
 
     while (true) {
         if (stop_feeding) {
