@@ -1,18 +1,17 @@
-cmake_minimum_required(VERSION 3.12)
+add_executable(wifi
+    src/wifi.c
+)
 
-set(PICO_BOARD pico2_w CACHE STRING "Target board")
-set(PICO_PLATFORM rp2350-arm-s CACHE STRING "Target platform")
+target_include_directories(wifi PRIVATE
+    ${CMAKE_CURRENT_LIST_DIR}/include
+)
 
-include($ENV{PICO_SDK_PATH}/external/pico_sdk_import.cmake)
+target_link_libraries(wifi
+    pico_stdlib
+    pico_cyw43_arch_lwip_threadsafe_background
+)
 
-project(all_projects C CXX ASM)
-set(CMAKE_C_STANDARD 11)
-set(CMAKE_CXX_STANDARD 17)
+pico_enable_stdio_usb(wifi 1)
+pico_enable_stdio_uart(wifi 0)
 
-pico_sdk_init()
-
-add_subdirectory(blink)
-add_subdirectory(log)
-add_subdirectory(btn)
-add_subdirectory(interrupt)
-add_subdirectory(wifi)
+pico_add_extra_outputs(wifi)
