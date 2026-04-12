@@ -2,6 +2,7 @@
 #include "pico/cyw43_arch.h"
 #include <stdio.h>
 #include <stdbool.h>
+#include "wifi_config.h"
 
 #define BUTTON_PIN 15
 
