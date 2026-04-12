@@ -1,19 +1,12 @@
-cmake_minimum_required(VERSION 3.12)
+add_executable(watchdog
+    src/watchdog.c
+)
 
-set(PICO_BOARD pico2_w CACHE STRING "Target board")
-set(PICO_PLATFORM rp2350-arm-s CACHE STRING "Target platform")
+target_link_libraries(watchdog
+    pico_stdlib
+)
 
-include($ENV{PICO_SDK_PATH}/external/pico_sdk_import.cmake)
+pico_enable_stdio_usb(watchdog 1)
+pico_enable_stdio_uart(watchdog 0)
 
-project(all_projects C CXX ASM)
-set(CMAKE_C_STANDARD 11)
-set(CMAKE_CXX_STANDARD 17)
-
-pico_sdk_init()
-
-add_subdirectory(blink)
-add_subdirectory(log)
-add_subdirectory(btn)
-add_subdirectory(interrupt)
-add_subdirectory(wifi)
-add_subdirectory(watchdog)
+pico_add_extra_outputs(watchdog)

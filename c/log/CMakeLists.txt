@@ -1,15 +1,12 @@
-cmake_minimum_required(VERSION 3.12)
+add_executable(log
+    src/log.c
+)
 
-set(PICO_BOARD pico2_w CACHE STRING "Target board")
-set(PICO_PLATFORM rp2350-arm-s CACHE STRING "Target platform")
+target_link_libraries(log
+    pico_stdlib
+)
 
-include($ENV{PICO_SDK_PATH}/external/pico_sdk_import.cmake)
+pico_enable_stdio_usb(log 1)
+pico_enable_stdio_uart(log 0)
 
-project(all_projects C CXX ASM)
-set(CMAKE_C_STANDARD 11)
-set(CMAKE_CXX_STANDARD 17)
-
-pico_sdk_init()
-
-add_subdirectory(blink)
-add_subdirectory(log)
+pico_add_extra_outputs(log)
