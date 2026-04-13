@@ -48,8 +48,9 @@ For the HTTP example in `code.py`, install the required library bundle:
 
 You can install libraries with:
 
-```bash
+``bash
 circup install adafruit_requests
+
 
 ## How to run
 Run a specific example
